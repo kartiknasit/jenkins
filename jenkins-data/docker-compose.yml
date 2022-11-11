@@ -2,7 +2,9 @@ version: '3'
 services:
   jenkins:
     container_name: jenkins
-    image: jenkins/jenkins
+    image: jenkins-ansible
+    build:
+      context: jenkins-ansible
     ports:
       - "8080:8080"
     volumes:
@@ -14,8 +16,6 @@ services:
     image: remote-host
     build:
       context: centos
-    volumes:
-      - "$PWD/scripts/mysql_backup_to_s3.sh:/tmp/mysql_backup_to_s3.sh"
     networks:
       - net
   db_host:
@@ -25,6 +25,15 @@ services:
       - "MYSQL_ROOT_PASSWORD=1234"
     volumes:
       - "$PWD/db_data:/var/lib/mysql"
+    networks:
+      - net
+  web:
+    container_name: web
+    image: ansible-web
+    build:
+      context: jenkins-ansible/web
+    ports:
+      - "80:80"
     networks:
       - net
 networks:
